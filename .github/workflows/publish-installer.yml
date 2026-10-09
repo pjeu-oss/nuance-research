@@ -1,0 +1,42 @@
+name: Package Windows installer release
+on:
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Retrieve tested installer
+        uses: actions/download-artifact@v7
+        with:
+          name: Nuance-Research-Windows-x64-Beta
+          run-id: '37955754385'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: package
+      - name: Verify installer checksum and files
+        shell: bash
+        run: |
+          cd package
+          test -f Nuance-Research-Windows-x64-Setup.exe
+          test -f Nuance-Research-Windows-x64-Setup.exe.sha256
+          test -f build-manifest.json
+          python - <<'PY'
+          import hashlib,re
+          from pathlib import Path
+          exe=Path('Nuance-Research-Windows-x64-Setup.exe')
+          expected=re.search(r'\b[0-9a-fA-F]{64}\b',Path(exe.name+'.sha256').read_text()).group().lower()
+          actual=hashlib.file_digest(exe.open('rb'),'sha256').hexdigest()
+          assert actual==expected,'Installer checksum mismatch'
+          assert exe.open('rb').read(2)==b'MZ','Expected Windows executable'
+          print('Verified installer SHA-256:',actual)
+          PY
+      - name: Create private beta release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          printf '%s\n' 'Windows x64 beta installer. Install by opening the single .exe; Python, Docker and GPU are not required.' '' 'Built in Windows build #2. 96 unit tests, frozen-engine tests, silent installation, installed-engine search and uninstallation passed. Unsigned beta; interactive laptop testing remains. No personal bibliography is included.' > release-notes.txt
+          gh release create windows-beta-0.11 package/Nuance-Research-Windows-x64-Setup.exe package/Nuance-Research-Windows-x64-Setup.exe.sha256 package/build-manifest.json --title 'Nuance-Research 0.11 — Windows x64 beta' --notes-file release-notes.txt --prerelease --target main
