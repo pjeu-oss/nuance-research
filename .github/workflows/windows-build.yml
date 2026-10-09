@@ -1,0 +1,81 @@
+name: Windows beta installer
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: windows-beta
+  cancel-in-progress: true
+jobs:
+  installer:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PIP_NO_CACHE_DIR: '1'
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      DO_NOT_TRACK: '1'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Unpack curated project
+        run: |
+          Expand-Archive -LiteralPath 'Nuance-Research-Windows-cloud-build-0.11.zip' -DestinationPath . -Force
+          if (!(Test-Path 'pyproject.toml')) { throw 'Project source is missing' }
+      - name: Check build tools and space
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $nuanceDrive = Get-PSDrive -Name ([IO.Path]::GetPathRoot($PWD.Path).Substring(0,1))
+          if ($nuanceDrive.Free -lt 10GB) { throw 'At least 10 GB free is required' }
+          $nuanceIscc = Join-Path ([Environment]::GetFolderPath('ProgramFilesX86')) 'Inno Setup 6/ISCC.exe'
+          if (!(Test-Path $nuanceIscc)) { throw 'Inno Setup 6 is missing' }
+      - name: Install CPU-only build dependencies
+        run: |
+          python -m pip install 'torch==2.14.1' --index-url https://download.pytorch.org/whl/cpu
+          if ($LASTEXITCODE -ne 0) { throw 'CPU PyTorch installation failed' }
+          python -m pip install -e '.[ml,dev]' 'PyInstaller==6.22.3'
+          if ($LASTEXITCODE -ne 0) { throw 'Build dependencies failed' }
+          python -m pip check
+          if ($LASTEXITCODE -ne 0) { throw 'Dependency conflict' }
+      - name: Run unit tests
+        run: |
+          python -m pytest tests -q
+          if ($LASTEXITCODE -ne 0) { throw 'Unit tests failed' }
+      - name: Download pinned permissive model
+        run: |
+          python scripts/prefetch_model.py --output build/model
+          if ($LASTEXITCODE -ne 0) { throw 'Verified model download failed' }
+      - name: Freeze and test engine, then create installer
+        run: ./desktop/build-windows.ps1 -ModelPath build/model -BuildDir build/package
+      - name: Test installation, installed engine and uninstallation
+        run: ./desktop/test-windows-installer.ps1 -InstallerPath build/package/releases/Nuance-Research-Windows-x64-Setup.exe
+      - name: Save build manifest
+        run: |
+          $nuanceManifest = [ordered]@{
+            commit = (git rev-parse HEAD)
+            platform = 'Windows x64'
+            signed = $false
+            tests = 'Unit suite; frozen engine; silent installation; installed engine; uninstallation'
+            gui_tested = $false
+          }
+          $nuanceManifest | ConvertTo-Json | Set-Content -Encoding utf8 build/package/releases/build-manifest.json
+      - name: Downloadable installer and checksum
+        uses: actions/upload-artifact@v7
+        with:
+          name: Nuance-Research-Windows-x64-Beta
+          path: |
+            build/package/releases/Nuance-Research-Windows-x64-Setup.exe
+            build/package/releases/Nuance-Research-Windows-x64-Setup.exe.sha256
+            build/package/releases/build-manifest.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 3
