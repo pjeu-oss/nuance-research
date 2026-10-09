@@ -10,7 +10,7 @@ Open **Actions → Windows beta installer → Run workflow**. The workflow unpac
 
 After success, download **Nuance-Research-Windows-x64-Beta** from the run's Artifacts section. It contains the single `Nuance-Research-Windows-x64-Setup.exe`, a SHA-256 checksum and build manifest. Artifacts expire after three days; download your copy promptly.
 
-**Build status:** no Windows installer has been produced yet. A successful Actions run is required. Interactive GUI and laptop performance checks remain beta-test work. The generated installer is unsigned.
+**Build status:** [Windows build #2 succeeded](https://github.com/pjeu-oss/nuance-research/actions/runs/37955754385) on 2026-10-09. The 591 MB artifact contains the installer, checksum and manifest. All 96 Windows unit tests, frozen-engine checks, silent installation, installed-engine search and uninstallation passed. The workflow includes a Windows startup compatibility correction to the archived source snapshot. Interactive GUI and laptop performance checks remain beta-test work. The generated installer is unsigned.
 
 ## Privacy and billing
 
