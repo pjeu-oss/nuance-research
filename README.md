@@ -1,6 +1,10 @@
 # Nuance-Research
 
-Nuance-Research beta source and Windows installer repository.
+Nuance-Research beta source and Mac / Windows installer repository.
+
+## Download and install on Mac
+
+[Download Nuance-Research for Mac](https://github.com/pjeu-oss/nuance-research/releases/download/windows-beta-0.11/Nuance-Research-Mac-arm64-Beta.pkg) (786 MiB). Open the single `.pkg` to install. Apple Silicon (M1 or later), macOS 14+. No GitHub account, Python, Docker or GPU is required. This package is unsigned and not Apple notarized; macOS may block installation after downloading. Intel Macs are not supported by this package.
 
 ## Download and install on Windows
 
