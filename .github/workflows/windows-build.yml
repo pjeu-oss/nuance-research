@@ -31,6 +31,18 @@ jobs:
         run: |
           Expand-Archive -LiteralPath 'Nuance-Research-Windows-cloud-build-0.11.zip' -DestinationPath . -Force
           if (!(Test-Path 'pyproject.toml')) { throw 'Project source is missing' }
+      - name: Apply Windows allocator compatibility correction
+        run: |
+          @'
+          from pathlib import Path
+          p = Path('nuance/runtime.py')
+          s = p.read_text()
+          anchor = '    try:\n        library=ctypes.CDLL(None)'
+          replacement = "    if sys.platform != 'darwin' and not sys.platform.startswith('linux'):\n        return\n" + anchor
+          assert anchor in s, 'Runtime patch location changed; review before building'
+          p.write_text(s.replace(anchor, replacement))
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'Windows compatibility correction failed' }
       - name: Check build tools and space
         run: |
           $ErrorActionPreference = 'Stop'
