@@ -1,0 +1,19 @@
+# Nuance-Research
+
+Private beta source and Windows installer build repository.
+
+The complete curated project is in `Nuance-Research-Windows-cloud-build-0.11.zip`. Extract it to inspect or develop the FastAPI engine, web interface, bibliography tools, editor, resource guards, tests and desktop packaging. No private user documents, bibliography databases or access credentials are included.
+
+## Build the Windows installer
+
+Open **Actions → Windows beta installer → Run workflow**. The workflow unpacks the project and builds on a Windows Server 2022 x64 runner, using Python 3.12 and CPU-only PyTorch. Unit tests, frozen-engine search tests, silent installation and installed-engine tests must pass before an artifact is uploaded.
+
+After success, download **Nuance-Research-Windows-x64-Beta** from the run's Artifacts section. It contains the single `Nuance-Research-Windows-x64-Setup.exe`, a SHA-256 checksum and build manifest. Artifacts expire after three days; download your copy promptly.
+
+**Build status:** no Windows installer has been produced yet. A successful Actions run is required. Interactive GUI and laptop performance checks remain beta-test work. The generated installer is unsigned.
+
+## Privacy and billing
+
+Keep this repository private. Never upload your personal library, `work`, `AppData`, databases or access keys. Check the account's Actions quota, artifact storage and spending settings before dispatch; no paid upgrade or larger runner is needed by the workflow. Use a zero spending limit if no cost is authorized.
+
+Detailed architecture, licenses, installation and limitations are in the source archive's README and `desktop/BUILD-WINDOWS.md`.
