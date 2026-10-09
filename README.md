@@ -1,6 +1,12 @@
 # Nuance-Research
 
-Private beta source and Windows installer build repository.
+Nuance-Research beta source and Windows installer repository.
+
+## Download and install on Windows
+
+[Download Nuance-Research for Windows x64](https://github.com/pjeu-oss/nuance-research/releases/download/windows-beta-0.11/Nuance-Research-Windows-x64-Setup.exe) (591 MB). Open the single `.exe` to install. No GitHub account, Python, Docker or GPU is required.
+
+[Release notes and SHA-256 checksum](https://github.com/pjeu-oss/nuance-research/releases/tag/windows-beta-0.11). This unsigned beta may display a Windows publisher/reputation warning. Interactive laptop testing remains.
 
 The complete curated project is in `Nuance-Research-Windows-cloud-build-0.11.zip`. Extract it to inspect or develop the FastAPI engine, web interface, bibliography tools, editor, resource guards, tests and desktop packaging. No private user documents, bibliography databases or access credentials are included.
 
@@ -14,6 +20,6 @@ After success, download **Nuance-Research-Windows-x64-Beta** from the run's Arti
 
 ## Privacy and billing
 
-Keep this repository private. Never upload your personal library, `work`, `AppData`, databases or access keys. Check the account's Actions quota, artifact storage and spending settings before dispatch; no paid upgrade or larger runner is needed by the workflow. Use a zero spending limit if no cost is authorized.
+This repository was made public with the owner's approval to share the installer. Never upload your personal library, `work`, `AppData`, databases or access keys. Check the account's Actions quota, artifact storage and spending settings before dispatch; no paid upgrade or larger runner is needed by the workflow. Use a zero spending limit if no cost is authorized.
 
 Detailed architecture, licenses, installation and limitations are in the source archive's README and `desktop/BUILD-WINDOWS.md`.
